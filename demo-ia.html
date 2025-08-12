@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo IA: Analizador de Discurso - PDG Consulting</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="logo"><img src="img/LogoPDG.jpg" alt="Logo PDG Consulting"></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="acerca.html">¿Quiénes Somos?</a></li>
+                <li><a href="servicios.html">Programas</a></li>
+                <li><a href="casos-de-exito.html">Casos de Éxito</a></li>
+                <li class="active"><a href="demo-ia.html">Demo IA</a></li>
+                <li><a href="metodologia.html">Metodología</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+            <button class="burger" aria-label="Abrir menú de navegación">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="container page-title">
+            <h1>Inteligencia Aumentada en Acción</h1>
+            <p>Pruebe una demostración de nuestra metodología. Pegue un fragmento de un discurso político y nuestra IA, impulsada por Gemini, le proporcionará un análisis estratégico instantáneo.</p>
+        </section>
+
+        <section class="container">
+            <div class="ia-container">
+                <div class="ia-input-panel">
+                    <h3>Ingrese el texto a analizar:</h3>
+                    <textarea id="discourse-input" placeholder="Pegue aquí un discurso, tweet o declaración política..."></textarea>
+                    <button id="analyze-button"><span id="button-text">✨ Analizar Discurso</span><div id="button-loader" class="loader hidden"></div></button>
+                </div>
+                <div class="ia-results-panel">
+                    <h3>Resultados del Análisis:</h3>
+                    <div id="results-container">
+                        <p id="results-placeholder">Los resultados del análisis aparecerán aquí.</p>
+                        <div id="results-content" class="hidden">
+                            <div><h4>Sentimiento General:</h4><p id="sentiment-result"></p></div>
+                            <div><h4>Temas Clave Identificados:</h4><ul id="themes-result"></ul></div>
+                            <div><h4>Recomendaciones Estratégicas:</h4><div class="recommendation support"><h5>Puntos para Apoyar:</h5><p id="support-result"></p></div><div class="recommendation refute"><h5>Puntos para Refutar:</h5><p id="refute-result"></p></div></div>
+                        </div>
+                        <div id="error-message" class="hidden error-box"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-about"><h4>PDG Consulting</h4><p>Pensamiento estratégico. Acción con propósito.</p></div>
+            <div class="footer-links"><h4>Navegación</h4><ul><li><a href="acerca.html">¿Quiénes Somos?</a></li><li><a href="servicios.html">Programas</a></li><li><a href="casos-de-exito.html">Casos de Éxito</a></li></ul></div>
+            <div class="footer-contact"><h4>Contacto</h4><p>Av. Diego de Almagro 1822 y Alpallana</p><p><a href="mailto:infopdgconsulting@gmail.com">infopdgconsulting@gmail.com</a></p><p><a href="tel:+593997521927">(+593) 099-752-1927</a></p></div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2025 PDG Consulting. Todos los derechos reservados.</p></div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        const analyzeButton=document.getElementById("analyze-button"),buttonText=document.getElementById("button-text"),buttonLoader=document.getElementById("button-loader"),discourseInput=document.getElementById("discourse-input"),resultsPlaceholder=document.getElementById("results-placeholder"),resultsContent=document.getElementById("results-content"),errorMessage=document.getElementById("error-message"),sentimentResult=document.getElementById("sentiment-result"),themesResult=document.getElementById("themes-result"),supportResult=document.getElementById("support-result"),refuteResult=document.getElementById("refute-result");analyzeButton.addEventListener("click",async()=>{const e=discourseInput.value.trim();if(!e)return void showError("Por favor, ingrese un texto para analizar.");setLoading(!0),hideError();const t=`Analiza el siguiente discurso político y proporciona una respuesta en formato JSON. El discurso es: "${e}". El JSON debe tener la siguiente estructura: {"sentimiento": "string (Positivo, Negativo o Neutro)", "temas_clave": ["string", "string", "string"], "recomendaciones": {"apoyo": "string con una recomendación concisa para apoyar el discurso", "refutacion": "string con una recomendación concisa para refutar el discurso"}}`;try{const e=await callGeminiAPI(t);displayResults(e)}catch(e){showError("Hubo un error al contactar al servicio de análisis. Por favor, inténtelo de nuevo más tarde.")}finally{setLoading(!1)}});async function callGeminiAPI(e,t=3,o=1e3){const n="",s=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${n}`,a={contents:[{parts:[{text:e}]}],generationConfig:{responseMimeType:"application/json"}};for(let e=0;e<t;e++)try{const t=await fetch(s,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(a)});if(!t.ok)throw new Error(`HTTP error! status: ${t.status}`);const o=await t.json();if(o.candidates&&o.candidates[0].content&&o.candidates[0].content.parts[0]){const e=o.candidates[0].content.parts[0].text;return JSON.parse(e)}throw new Error("Respuesta inesperada de la API.")}catch(n){if(e===t-1)throw n;await new Promise(e=>setTimeout(e,o*Math.pow(2,e)))}}function displayResults(e){var t,o;resultsPlaceholder.classList.add("hidden"),resultsContent.classList.remove("hidden"),sentimentResult.textContent=e.sentimiento||"No determinado",themesResult.innerHTML="",e.temas_clave&&e.temas_clave.length>0?e.temas_clave.forEach(e=>{const t=document.createElement("li");t.textContent=e,themesResult.appendChild(t)}):themesResult.innerHTML="<li>No se identificaron temas clave.</li>",supportResult.textContent=(null===(t=e.recomendaciones)||void 0===t?void 0:t.apoyo)||"No hay recomendaciones disponibles.",refuteResult.textContent=(null===(o=e.recomendaciones)||void 0===o?void 0:o.refutacion)||"No hay recomendaciones disponibles.",sentimentResult.className="","Positivo"===e.sentimiento?sentimentResult.classList.add("sentiment-positive"):"Negativo"===e.sentimiento?sentimentResult.classList.add("sentiment-negative"):sentimentResult.classList.add("sentiment-neutral")}function setLoading(e){analyzeButton.disabled=e,e?(buttonText.classList.add("hidden"),buttonLoader.classList.remove("hidden")):(buttonText.classList.remove("hidden"),buttonLoader.classList.add("hidden"))}function showError(e){resultsPlaceholder.classList.remove("hidden"),resultsContent.classList.add("hidden"),errorMessage.textContent=e,errorMessage.classList.remove("hidden")}function hideError(){errorMessage.classList.add("hidden")}
+    </script>
+</body>
+</html>
